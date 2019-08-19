@@ -4,6 +4,7 @@ class CRM_Mjwcividbtools_DbUtils {
 
   public static function getTables() {
     $allTables = CRM_Core_DAO::getTableNames();
+    sort($allTables);
 
     $tablesToDrop = $tablesCache = $tablesViews = $tablesToIgnore = $tablesToTruncate = [];
     foreach ($allTables as $tablename) {
