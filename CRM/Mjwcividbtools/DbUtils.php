@@ -24,13 +24,33 @@ class CRM_Mjwcividbtools_DbUtils {
         $tablesToTruncate[] = $tablename;
       }
     }
-    return [
+    $tables = [
       'tablesToDrop' => $tablesToDrop,
       'tablesCache' => $tablesCache,
       'tablesViews' => $tablesViews,
       'tablesToIgnore' => $tablesToIgnore,
       'tablesToTruncate' => $tablesToTruncate,
     ];
+    $tables = self::getExtensionTables($tables);
+    return $tables;
+  }
+
+  /**
+   * @fixme this should really be some kind of hook that extensions also use to announce what tables they have
+   * @param array $tables
+   *
+   * @return array
+   */
+  public static function getExtensionTables($tables) {
+    $tablesToTruncate = [
+      'civicrm_event_template'
+    ];
+    foreach ($tablesToTruncate as $table) {
+      if (CRM_Core_DAO::checkTableExists($table)) {
+        $tables['tablesToTruncate'][] = $table;
+      }
+    }
+    return $tables;
   }
 
   public static function getConfigTables() {
