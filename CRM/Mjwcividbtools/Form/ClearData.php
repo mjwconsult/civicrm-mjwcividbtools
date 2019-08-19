@@ -76,6 +76,9 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
         }
       }
     }
+    foreach ($this->tables['tablesToDrop'] as $dropTableName) {
+      $queries[] = "DROP TABLE {$dropTableName}";
+    }
     $queries[] = "SET FOREIGN_KEY_CHECKS = 1";
     foreach ($queries as $query) {
       CRM_Core_DAO::executeQuery($query);
