@@ -110,7 +110,6 @@ class CRM_Mjwcividbtools_DbUtils {
       72 => 'civicrm_price_set_entity',
       73 => 'civicrm_print_label',
       74 => 'civicrm_product',
-      75 => 'civicrm_queue_item',
       76 => 'civicrm_relationship_type',
       77 => 'civicrm_report_instance',
       78 => 'civicrm_saved_search',
