@@ -78,7 +78,6 @@ class CRM_Mjwcividbtools_DbUtils {
       40 => 'civicrm_group_nesting',
       41 => 'civicrm_group_organization',
       42 => 'civicrm_job',
-      43 => 'civicrm_loc_block',
       44 => 'civicrm_location_type',
       45 => 'civicrm_mail_settings',
       46 => 'civicrm_mailing_bounce_pattern',

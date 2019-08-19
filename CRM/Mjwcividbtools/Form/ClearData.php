@@ -95,6 +95,7 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
     CRM_Utils_Cache::singleton()->clear();
     if ($loggingEnabled) {
       $logging->enableLogging();
+      civicrm_api3('System', 'createmissinglogtables', []);
     }
   }
 
