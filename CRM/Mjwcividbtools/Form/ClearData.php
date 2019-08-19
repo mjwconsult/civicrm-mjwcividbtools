@@ -20,10 +20,16 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
   public function buildQuickForm() {
     $this->tables = CRM_Mjwcividbtools_DbUtils::getTables();
 
+    // Preserve contact IDs specified in civicrm_domain and civicrm_uf_match
+    $dao = CRM_Core_DAO::executeQuery('SELECT contact_id from civicrm_domain');
+    while ($dao->fetch()) {
+      $this->ufContacts[$dao->contact_id] = $dao->contact_id;
+    }
     $dao = CRM_Core_DAO::executeQuery('SELECT contact_id from civicrm_uf_match');
     while ($dao->fetch()) {
-      $this->ufContacts[] = $dao->contact_id;
+      $this->ufContacts[$dao->contact_id] = $dao->contact_id;
     }
+
     $this->add('text', 'contact_ids', 'Contact IDs to keep');
     foreach ($this->tables['tablesToTruncate'] as $tableName) {
       $this->add('checkbox', "tabletotruncate_{$tableName}", $tableName);
