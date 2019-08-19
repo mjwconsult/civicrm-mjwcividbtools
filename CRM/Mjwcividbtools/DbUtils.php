@@ -50,6 +50,7 @@ class CRM_Mjwcividbtools_DbUtils {
         $tables['tablesToTruncate'][] = $table;
       }
     }
+    sort($tables['tablesToTruncate']);
     return $tables;
   }
 
