@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/admin/db/cleardata</path>
+    <page_callback>CRM_Mjwcividbtools_Form_ClearData</page_callback>
+    <title>ClearData</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>

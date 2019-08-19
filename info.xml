@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<extension key="mjwcividbtools" type="module">
+  <file>mjwcividbtools</file>
+  <name>MJW CiviCRM DB Tools</name>
+  <description>This extension allows you to perform various destructive operations on the database (useful during deployment, do NOT use in production!)</description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>Matthew Wire (MJW Consulting)</author>
+    <email>mjw@mjwconsult.co.uk</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">https://github.com/mattwire/civicrm-mjwcividbtools</url>
+    <url desc="Support">https://www.mjwconsult.co.uk</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <releaseDate>2019-08-19</releaseDate>
+  <version>0.1</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>5.13</ver>
+  </compatibility>
+  <civix>
+    <namespace>CRM/Mjwcividbtools</namespace>
+  </civix>
+</extension>
