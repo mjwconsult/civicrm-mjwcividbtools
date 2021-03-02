@@ -67,7 +67,7 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
   public function postProcess() {
     $values = $this->exportValues();
     // Validation
-    if (!CRM_Utils_Type::validate($values['contact_ids'], 'CommaSeparatedIntegers')) {
+    if (!CRM_Utils_Type::validate($values['contact_ids'], 'CommaSeparatedIntegers', FALSE)) {
       $values['contact_ids'] = [];
     }
 
