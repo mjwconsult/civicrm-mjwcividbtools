@@ -67,7 +67,9 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
   public function postProcess() {
     $values = $this->exportValues();
     // Validation
-    CRM_Utils_Type::validate($values['contact_ids'], 'CommaSeparatedIntegers', TRUE);
+    if (!CRM_Utils_Type::validate($values['contact_ids'], 'CommaSeparatedIntegers')) {
+      $values['contact_ids'] = [];
+    }
 
     $buttonName = $this->controller->getButtonName();
     if ($buttonName === $this->getButtonName('submit', 'listtablestoclear')) {
