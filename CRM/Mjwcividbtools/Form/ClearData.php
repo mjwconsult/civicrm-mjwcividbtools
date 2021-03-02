@@ -66,16 +66,12 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
 
   public function postProcess() {
     $values = $this->exportValues();
-    // Validation
-    if (!CRM_Utils_Type::validate($values['contact_ids'], 'CommaSeparatedIntegers', FALSE)) {
-      $values['contact_ids'] = [];
-    }
 
     $buttonName = $this->controller->getButtonName();
     if ($buttonName === $this->getButtonName('submit', 'listtablestoclear')) {
       foreach ($values as $tableName => $tableValue) {
         if ((substr($tableName, 0, 16) === 'tabletotruncate_') && ($tableValue == 1)) {
-          $tables[] = substr($tableName, 16);
+          $tables[] = '"' . substr($tableName, 16) . '"';
         }
       }
       $tablesString = implode(',', $tables);
@@ -102,7 +98,15 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
       $queries[] = "SET FOREIGN_KEY_CHECKS = 0";
       foreach ($values as $tableName => $tableValue) {
         if (($tableName === 'contact_ids') && ($values['tabletotruncate_civicrm_contact'] == 1)) {
-          $queries[] = "DELETE FROM civicrm_contact WHERE id NOT IN (" . $values['contact_ids'] . ")";
+          $query = "DELETE FROM civicrm_contact";
+          // Validation
+          if (!CRM_Utils_Type::validate($values['contact_ids'], 'CommaSeparatedIntegers', FALSE)) {
+            $values['contact_ids'] = [];
+          }
+          else {
+            $query .= " WHERE id NOT IN (" . $values['contact_ids'] . ")";
+          }
+          $queries[] = $query;
         }
         if ((substr($tableName, 0, 16) === 'tabletotruncate_') && ($tableValue == 1)) {
           $table = substr($tableName, 16);

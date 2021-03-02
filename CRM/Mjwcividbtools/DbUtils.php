@@ -43,7 +43,10 @@ class CRM_Mjwcividbtools_DbUtils {
    */
   public static function getExtensionTables($tables) {
     $tablesToTruncate = [
-      'civicrm_event_template'
+      'civicrm_event_template',
+      'cividiscount_track',
+      'civirule_civiruleslogger_log',
+      'civirule_rule_log'
     ];
     foreach ($tablesToTruncate as $table) {
       if (CRM_Core_DAO::checkTableExists($table)) {
