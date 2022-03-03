@@ -105,9 +105,6 @@ function mjwcividbtools_civicrm_caseTypes(&$caseTypes) {
  *
  * Generate a list of Angular modules.
  *
- * Note: This hook only runs in CiviCRM 4.5+. It may
- * use features only available in v4.6+.
- *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_angularModules
  */
 function mjwcividbtools_civicrm_angularModules(&$angularModules) {
@@ -133,31 +130,3 @@ function mjwcividbtools_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 function mjwcividbtools_civicrm_entityTypes(&$entityTypes) {
   _mjwcividbtools_civix_civicrm_entityTypes($entityTypes);
 }
-
-// --- Functions below this ship commented out. Uncomment as required. ---
-
-/**
- * Implements hook_civicrm_preProcess().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function mjwcividbtools_civicrm_preProcess($formName, &$form) {
-
-} // */
-
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function mjwcividbtools_civicrm_navigationMenu(&$menu) {
-  _mjwcividbtools_civix_insert_navigation_menu($menu, 'Mailings', array(
-    'label' => E::ts('New subliminal message'),
-    'name' => 'mailing_subliminal_message',
-    'url' => 'civicrm/mailing/subliminal',
-    'permission' => 'access CiviMail',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _mjwcividbtools_civix_navigationMenu($menu);
-} // */
