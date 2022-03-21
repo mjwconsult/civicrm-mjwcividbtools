@@ -13,9 +13,9 @@
     <url desc="Support">https://mjw.pt/support/cividbtools</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
-  <releaseDate>2022-03-02</releaseDate>
-  <version>0.3</version>
-  <develStage>alpha</develStage>
+  <releaseDate>2022-03-21</releaseDate>
+  <version>0.4</version>
+  <develStage>stable</develStage>
   <compatibility>
   <ver>5.46</ver>
   </compatibility>

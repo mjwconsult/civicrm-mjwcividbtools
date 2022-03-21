@@ -126,11 +126,12 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
       $maxContact = (int) CRM_Core_DAO::singleValueQuery('select MAX(id) from civicrm_contact');
       CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_contact AUTO_INCREMENT=' . ($maxContact + 1));
 
-      CRM_Utils_Cache::singleton()->clear();
+      \Civi::cache()->clear();
       if ($loggingEnabled) {
         $logging->enableLogging();
         civicrm_api3('System', 'createmissinglogtables', []);
       }
+      \Civi::log()->log('Cleared data from database.');
     }
   }
 
