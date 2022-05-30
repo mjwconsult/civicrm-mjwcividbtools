@@ -152,6 +152,17 @@ class CRM_Mjwcividbtools_DbUtils {
       91 => 'civicrm_webtracking',
       92 => 'civicrm_word_replacement',
       93 => 'civicrm_worldregion',
+      94 => 'civicrm_config_item_set',
+      95 => 'civicrm_inlay',
+      96 => 'civicrm_inlay_asset',
+      97 => 'civicrm_inlay_config_set',
+      98 => 'civicrm_form_processor_action',
+      99 => 'civicrm_form_processor_default_data_action',
+      100 => 'civicrm_form_processor_default_data_input',
+      101 => 'civicrm_form_processor_input',
+      102 => 'civicrm_form_processor_instance',
+      103 => 'civicrm_form_processor_validation',
+
     ];
     return $configTables;
   }
