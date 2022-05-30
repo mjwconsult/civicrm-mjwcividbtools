@@ -111,8 +111,7 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
         if ((substr($tableName, 0, 16) === 'tabletotruncate_') && ($tableValue == 1)) {
           $table = substr($tableName, 16);
           if ($table !== 'civicrm_contact') {
-            $queries[] = "DELETE FROM {$table}";
-            $queries[] = "ALTER TABLE {$table} AUTO_INCREMENT=1";
+            $queries[] = "TRUNCATE {$table}";
           }
         }
       }
