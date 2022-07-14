@@ -76,3 +76,18 @@ function mjwcividbtools_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 function mjwcividbtools_civicrm_entityTypes(&$entityTypes) {
   _mjwcividbtools_civix_civicrm_entityTypes($entityTypes);
 }
+
+/**
+ * Implements hook_civicrm_navigationMenu().
+ */
+function mjwcividbtools_civicrm_navigationMenu(&$menu) {
+  _mjwcividbtools_civix_insert_navigation_menu($menu, 'Administer/System Settings', [
+    'label' => E::ts('MJW Civi DB Tools'),
+    'name' => 'mjwcividbtools',
+    'url' => 'civicrm/admin/db/cleardata',
+    'permission' => 'administer CiviCRM',
+    'operator' => 'OR',
+    'separator' => 0,
+  ]);
+  _mjwcividbtools_civix_navigationMenu($menu);
+}
