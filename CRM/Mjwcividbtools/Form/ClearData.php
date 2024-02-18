@@ -20,6 +20,16 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
   private $ufContacts;
 
   public function buildQuickForm() {
+    if (!CRM_Core_DAO::checkTableExists('MJWCIVIDBTOOLS_tables_import')) {
+      CRM_Core_DAO::executeQuery('CREATE TABLE `MJWCIVIDBTOOLS_tables_import` (
+  `table_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `truncate` tinyint(1) NOT NULL,
+  `missing` tinyint(1) NOT NULL DEFAULT 0,
+  `unknown` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB');
+    }
+
     $this->tables = CRM_Mjwcividbtools_DbUtils::getTables();
 
     // Preserve contact IDs specified in civicrm_domain and civicrm_uf_match

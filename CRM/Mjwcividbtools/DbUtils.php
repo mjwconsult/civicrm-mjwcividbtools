@@ -3,11 +3,55 @@
 class CRM_Mjwcividbtools_DbUtils {
 
   public static function getTables() {
-    $allTables = CRM_Core_DAO::getTableNames();
-    sort($allTables);
+    $dao = CRM_Core_DAO::executeQuery(
+      "SELECT TABLE_NAME
+        FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = DATABASE()
+        ");
+
+    while ($dao->fetch()) {
+      $existingTableNames[] = $dao->TABLE_NAME;
+    }
+    sort($existingTableNames);
+
+    $allKnownTables = array_merge(
+      self::getCacheTables(),
+      self::getConfigTables(),
+      self::getDataTables(),
+      self::getLogTables(),
+    );
+
+    // Insert the list of missing tables
+    $unknownTables = array_diff($existingTableNames, $allKnownTables);
+    foreach ($unknownTables as $tableName) {
+      CRM_Core_DAO::executeQuery('
+INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, missing) VALUES ("' . $tableName . '", 1)
+      ');
+    }
+
+    foreach (self::getCacheTables() as $tableName) {
+      CRM_Core_DAO::executeQuery('
+INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . $tableName . '", "cache")
+      ');
+    }
+    foreach (self::getLogTables() as $tableName) {
+      CRM_Core_DAO::executeQuery('
+INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . $tableName . '", "log")
+      ');
+    }
+    foreach (self::getConfigTables() as $tableName) {
+      CRM_Core_DAO::executeQuery('
+INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . $tableName . '", "config")
+      ');
+    }
+    foreach (self::getDataTables() as $tableName) {
+      CRM_Core_DAO::executeQuery('
+INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . $tableName . '", "data")
+      ');
+    }
 
     $tablesToDrop = $tablesCache = $tablesViews = $tablesToIgnore = $tablesToTruncate = [];
-    foreach ($allTables as $tablename) {
+    foreach ($existingTableNames as $tablename) {
       if (substr($tablename, 0, 18) === 'civicrm_advimport_') {
         $tablesToDrop[] = $tablename;
       }
@@ -31,140 +75,243 @@ class CRM_Mjwcividbtools_DbUtils {
       'tablesToIgnore' => $tablesToIgnore,
       'tablesToTruncate' => $tablesToTruncate,
     ];
-    $tables = self::getExtensionTables($tables);
-    return $tables;
-  }
-
-  /**
-   * @fixme this should really be some kind of hook that extensions also use to announce what tables they have
-   * @param array $tables
-   *
-   * @return array
-   */
-  public static function getExtensionTables($tables) {
-    $tablesToTruncate = [
-      'civicrm_event_template',
-      'cividiscount_track',
-      'civirule_civiruleslogger_log',
-      'civirule_rule_log'
-    ];
-    foreach ($tablesToTruncate as $table) {
-      if (CRM_Core_DAO::checkTableExists($table)) {
-        $tables['tablesToTruncate'][] = $table;
-      }
-    }
-    sort($tables['tablesToTruncate']);
     return $tables;
   }
 
   public static function getConfigTables() {
     $configTables = [
-      0 => 'civicrm_acl',
-      1 => 'civicrm_acl_entity_role',
-      2 => 'civicrm_action_mapping',
-      3 => 'civicrm_action_schedule',
-      4 => 'civicrm_address_format',
-      5 => 'civicrm_campaign_group',
-      6 => 'civicrm_case_type',
-      7 => 'civicrm_civigiftaid_batchsettings',
-      8 => 'civicrm_component',
-      9 => 'civicrm_contact_layout',
-      10 => 'civicrm_contact_type',
-      11 => 'civicrm_contribution_page',
-      12 => 'civicrm_contribution_product',
-      13 => 'civicrm_contribution_soft',
-      14 => 'civicrm_contribution_widget',
-      15 => 'civicrm_country',
-      16 => 'civicrm_county',
-      17 => 'civicrm_currency',
-      18 => 'civicrm_custom_field',
-      19 => 'civicrm_custom_group',
-      20 => 'civicrm_cxn',
-      21 => 'civicrm_dashboard',
-      22 => 'civicrm_dashboard_contact',
-      23 => 'civicrm_data_processor',
-      24 => 'civicrm_data_processor_field',
-      25 => 'civicrm_data_processor_filter',
-      26 => 'civicrm_data_processor_output',
-      27 => 'civicrm_data_processor_source',
-      28 => 'civicrm_dedupe_exception',
-      29 => 'civicrm_dedupe_rule',
-      30 => 'civicrm_dedupe_rule_group',
-      31 => 'civicrm_discount',
-      32 => 'civicrm_domain',
-      33 => 'civicrm_entity_financial_account',
-      34 => 'civicrm_entity_setting',
-      35 => 'civicrm_extension',
-      36 => 'civicrm_financial_account',
-      37 => 'civicrm_financial_type',
-      38 => 'civicrm_group',
-      39 => 'civicrm_group_contact',
-      40 => 'civicrm_group_nesting',
-      41 => 'civicrm_group_organization',
-      42 => 'civicrm_job',
-      44 => 'civicrm_location_type',
-      45 => 'civicrm_mail_settings',
-      46 => 'civicrm_mailing_bounce_pattern',
-      47 => 'civicrm_mailing_bounce_type',
-      48 => 'civicrm_mailing_component',
-      49 => 'civicrm_mailing_group',
-      50 => 'civicrm_managed',
-      51 => 'civicrm_mapping',
-      52 => 'civicrm_mapping_field',
-      53 => 'civicrm_membership_block',
-      54 => 'civicrm_membership_status',
-      55 => 'civicrm_membership_type',
-      56 => 'civicrm_menu',
-      57 => 'civicrm_navigation',
-      58 => 'civicrm_openid',
-      59 => 'civicrm_option_group',
-      60 => 'civicrm_option_value',
-      61 => 'civicrm_participant_status_type',
-      62 => 'civicrm_payment_processor',
-      63 => 'civicrm_payment_processor_type',
-      64 => 'civicrm_payment_token',
-      65 => 'civicrm_pcp_block',
-      66 => 'civicrm_persistent',
-      67 => 'civicrm_pledge_block',
-      68 => 'civicrm_preferences_date',
-      69 => 'civicrm_premiums',
-      70 => 'civicrm_premiums_product',
-      71 => 'civicrm_price_field',
-      72 => 'civicrm_price_field_value',
-      73 => 'civicrm_price_set',
-      74 => 'civicrm_price_set_entity',
-      75 => 'civicrm_print_label',
-      76 => 'civicrm_product',
-      77 => 'civicrm_relationship_type',
-      78 => 'civicrm_report_instance',
-      79 => 'civicrm_saved_search',
-      80 => 'civicrm_setting',
-      81 => 'civicrm_sms_provider',
-      82 => 'civicrm_state_province',
-      83 => 'civicrm_status_pref',
-      84 => 'civicrm_tag',
-      85 => 'civicrm_tell_friend',
-      86 => 'civicrm_timezone',
-      87 => 'civicrm_uf_field',
-      88 => 'civicrm_uf_group',
-      89 => 'civicrm_uf_join',
-      90 => 'civicrm_uf_match',
-      91 => 'civicrm_webtracking',
-      92 => 'civicrm_word_replacement',
-      93 => 'civicrm_worldregion',
-      94 => 'civicrm_config_item_set',
-      95 => 'civicrm_inlay',
-      96 => 'civicrm_inlay_asset',
-      97 => 'civicrm_inlay_config_set',
-      98 => 'civicrm_form_processor_action',
-      99 => 'civicrm_form_processor_default_data_action',
-      100 => 'civicrm_form_processor_default_data_input',
-      101 => 'civicrm_form_processor_input',
-      102 => 'civicrm_form_processor_instance',
-      103 => 'civicrm_form_processor_validation',
-
+      'civicrm_acl',
+      'civicrm_acl_entity_role',
+      'civicrm_action_mapping',
+      'civicrm_action_schedule',
+      'civicrm_address_format',
+      'civicrm_campaign_group',
+      'civicrm_case_type',
+      'civicrm_civigiftaid_batchsettings',
+      'civicrm_component',
+      'civicrm_contact_layout',
+      'civicrm_contact_type',
+      'civicrm_contribution_page',
+      'civicrm_contribution_product',
+      'civicrm_contribution_soft',
+      'civicrm_contribution_widget',
+      'civicrm_country',
+      'civicrm_county',
+      'civicrm_currency',
+      'civicrm_custom_field',
+      'civicrm_custom_group',
+      'civicrm_cxn',
+      'civicrm_dashboard',
+      'civicrm_data_processor',
+      'civicrm_data_processor_field',
+      'civicrm_data_processor_filter',
+      'civicrm_data_processor_output',
+      'civicrm_data_processor_source',
+      'civicrm_dedupe_exception',
+      'civicrm_dedupe_rule',
+      'civicrm_dedupe_rule_group',
+      'civicrm_discount',
+      'civicrm_domain',
+      'civicrm_entity_financial_account',
+      'civicrm_entity_setting',
+      'civicrm_extension',
+      'civicrm_financial_account',
+      'civicrm_financial_type',
+      'civicrm_group',
+      'civicrm_group_nesting',
+      'civicrm_group_organization',
+      'civicrm_job',
+      'civicrm_location_type',
+      'civicrm_mail_settings',
+      'civicrm_mailing_bounce_pattern',
+      'civicrm_mailing_bounce_type',
+      'civicrm_mailing_component',
+      'civicrm_managed',
+      'civicrm_mapping',
+      'civicrm_mapping_field',
+      'civicrm_membership_block',
+      'civicrm_membership_status',
+      'civicrm_membership_type',
+      'civicrm_menu',
+      'civicrm_mosaico_msg_template',
+      'civicrm_mosaico_template',
+      'civicrm_msg_template',
+      'civicrm_navigation',
+      'civicrm_openid',
+      'civicrm_option_group',
+      'civicrm_option_value',
+      'civicrm_participant_status_type',
+      'civicrm_payment_processor',
+      'civicrm_payment_processor_type',
+      'civicrm_pcp',
+      'civicrm_pcp_block',
+      'civicrm_persistent',
+      'civicrm_pledge_block',
+      'civicrm_preferences_date',
+      'civicrm_premiums',
+      'civicrm_premiums_product',
+      'civicrm_price_field',
+      'civicrm_price_field_value',
+      'civicrm_price_set',
+      'civicrm_price_set_entity',
+      'civicrm_print_label',
+      'civicrm_product',
+      'civicrm_relationship_type',
+      'civicrm_report_instance',
+      'civicrm_saved_search',
+      'civicrm_search_display',
+      'civicrm_setting',
+      'civicrm_sms_provider',
+      'civicrm_state_province',
+      'civicrm_status_pref',
+      'civicrm_survey',
+      'civicrm_tag',
+      'civicrm_tell_friend',
+      'civicrm_timezone',
+      'civicrm_translation',
+      'civicrm_uf_field',
+      'civicrm_uf_group',
+      'civicrm_uf_join',
+      'civicrm_uf_match',
+      'civicrm_webtracking',
+      'civicrm_word_replacement',
+      'civicrm_worldregion',
+      'civicrm_config_item_set',
+      'civicrm_inlay',
+      'civicrm_inlay_asset',
+      'civicrm_inlay_config_set',
+      'civicrm_form_processor_action',
+      'civicrm_form_processor_default_data_action',
+      'civicrm_form_processor_default_data_input',
+      'civicrm_form_processor_input',
+      'civicrm_form_processor_instance',
+      'civicrm_form_processor_validation',
+      'cividiscount_item',
+      'civirule_action',
+      'civirule_condition',
+      'civirule_rule',
+      'civirule_rule_action',
+      'civirule_rule_condition',
+      'civirule_rule_tag',
+      'civirule_trigger',
     ];
     return $configTables;
+  }
+
+  public static function getCacheTables() {
+    return [
+      'civicrm_acl_cache',
+      'civicrm_acl_contact_cache',
+      'civicrm_cache',
+      'civicrm_group_contact_cache',
+      'civicrm_prevnext_cache',
+      'civicrm_queue_item',
+      'civicrm_relationship_cache',
+    ];
+  }
+
+  public static function getLogTables() {
+    return [
+      'civicrm_action_log',
+      'civicrm_job_log',
+      'civicrm_log',
+      'civicrm_membership_log',
+      'civicrm_subscription_history',
+      'civicrm_system_log',
+      'civirule_civiruleslogger_log',
+      'civirule_rule_log',
+    ];
+  }
+
+  public static function getDataTables() {
+    return [
+      'civicrm_activity',
+      'civicrm_activity_contact',
+      'civicrm_address',
+      'civicrm_afform_submission',
+      'civicrm_batch',
+      'civicrm_campaign',
+      'civicrm_case',
+      'civicrm_case_activity',
+      'civicrm_case_contact',
+      'civicrm_contact',
+      'civicrm_contribution',
+      'civicrm_contribution_recur',
+      'civicrm_dashboard_contact',
+      'civicrm_dedupe_exception',
+      'civicrm_email',
+      'civicrm_entity_batch',
+      'civicrm_entity_file',
+      'civicrm_entity_financial_account',
+      'civicrm_entity_financial_trxn',
+      'civicrm_entity_tag',
+      'civicrm_event',
+      'civicrm_event_template',
+      'civicrm_event_carts',
+      'civicrm_events_in_carts',
+      'civicrm_file',
+      'civicrm_financial_item',
+      'civicrm_financial_trxn',
+      'civicrm_firewall_ipaddress',
+      'civicrm_grant',
+      'civicrm_group_contact',
+      'civicrm_im',
+      'civicrm_line_item',
+      'civicrm_loc_block',
+      'civicrm_mailing',
+      'civicrm_mailing_abtest',
+      'civicrm_mailing_event_bounce',
+      'civicrm_mailing_event_confirm',
+      'civicrm_mailing_event_delivered',
+      'civicrm_mailing_event_forward',
+      'civicrm_mailing_event_opened',
+      'civicrm_mailing_event_queue',
+      'civicrm_mailing_event_reply',
+      'civicrm_mailing_event_subscribe',
+      'civicrm_mailing_event_trackable_url_open',
+      'civicrm_mailing_event_unsubscribe',
+      'civicrm_mailing_group',
+      'civicrm_mailing_job',
+      'civicrm_mailing_recipients',
+      'civicrm_mailing_spool',
+      'civicrm_mailing_trackable_url',
+      'civicrm_membership',
+      'civicrm_membership_payment',
+      'civicrm_note',
+      'civicrm_participant',
+      'civicrm_participant_payment',
+      'civicrm_paymentprocessor_webhook',
+      'civicrm_payment_token',
+      'civicrm_phone',
+      'civicrm_pledge',
+      'civicrm_pledge_payment',
+      'civicrm_queue',
+      'civicrm_recurring_entity',
+      'civicrm_relationship',
+      'civicrm_stripe_customers',
+      'civicrm_stripe_paymentintent',
+      'civicrm_value_contribution_page_terms_and_conditions_7',
+      'civicrm_value_contribution_terms_and_conditions_acceptan_8',
+      'civicrm_value_event_cpd_fie_18',
+      'civicrm_value_event_feedback_dev__15',
+      'civicrm_value_event_feedback_form_fieldset_14',
+      'civicrm_value_event_terms_and_conditions_7',
+      'civicrm_value_event_terms_and_conditions_acceptance_9',
+      'civicrm_value_events_3',
+      'civicrm_value_extra_participant_details_4',
+      'civicrm_value_fab_training__17',
+      'civicrm_value_futureproof_21',
+      'civicrm_value_futureproof_builders_16',
+      'civicrm_value_individual_details_7',
+      'civicrm_value_interest_1',
+      'civicrm_value_member_social_media_8',
+      'civicrm_value_organisation_details_2',
+      'civicrm_value_past_member_5',
+      'civicrm_value_regions_6',
+      'civicrm_value_sla_acceptance_4',
+      'civicrm_website',
+      'cividiscount_track',
+    ];
   }
 
 }
