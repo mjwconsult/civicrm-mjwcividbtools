@@ -141,6 +141,8 @@ class CRM_Mjwcividbtools_Form_ClearData extends CRM_Core_Form {
         civicrm_api3('System', 'createmissinglogtables', []);
       }
       \Civi::log()->alert('Cleared data from database.');
+
+      CRM_Core_Session::setStatus(ts('Cleared data from database'), ts('Data cleared'), 'success');
     }
   }
 
