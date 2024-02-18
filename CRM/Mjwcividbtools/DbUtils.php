@@ -64,6 +64,12 @@ INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . 
       elseif (in_array($tablename, self::getConfigTables())) {
         $tablesToIgnore[] = $tablename;
       }
+      elseif (substr($tablename, 0, 13) === 'snap_civicrm_') {
+        $tablesToIgnore[] = $tablename;
+      }
+      elseif (substr($tablename, 0, 14) === 'civicrm_oauth_') {
+        $tablesToIgnore[] = $tablename;
+      }
       else {
         $tablesToTruncate[] = $tablename;
       }
@@ -80,6 +86,7 @@ INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . 
 
   public static function getConfigTables() {
     $configTables = [
+      'MJWCIVIDBTOOLS_tables_import',
       'civicrm_acl',
       'civicrm_acl_entity_role',
       'civicrm_action_mapping',
@@ -117,9 +124,11 @@ INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . 
       'civicrm_extension',
       'civicrm_financial_account',
       'civicrm_financial_type',
+      'civicrm_geocoder_zip_dataset',
       'civicrm_group',
       'civicrm_group_nesting',
       'civicrm_group_organization',
+      'civicrm_install_canary',
       'civicrm_job',
       'civicrm_location_type',
       'civicrm_mail_settings',
@@ -138,6 +147,7 @@ INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . 
       'civicrm_msg_template',
       'civicrm_navigation',
       'civicrm_openid',
+      'civicrm_open_postcode_geo_uk',
       'civicrm_option_group',
       'civicrm_option_value',
       'civicrm_participant_status_type',
@@ -160,6 +170,7 @@ INSERT IGNORE INTO MJWCIVIDBTOOLS_tables_import (table_name, type) VALUES ("' . 
       'civicrm_report_instance',
       'civicrm_saved_search',
       'civicrm_search_display',
+      'civicrm_search_segment',
       'civicrm_setting',
       'civicrm_sms_provider',
       'civicrm_state_province',
